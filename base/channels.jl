@@ -102,6 +102,8 @@ end
 
 eltype{T}(::Type{Channel{T}}) = T
 
+capacity(c::Channel) = c.sz_max
+
 function n_avail(c::Channel)
     if c.put_pos >= c.take_pos
         return c.put_pos - c.take_pos
