@@ -1210,6 +1210,7 @@ export
 
 # multiprocessing
     addprocs,
+    capacity,
     ClusterManager,
     fetch,
     init_worker,
