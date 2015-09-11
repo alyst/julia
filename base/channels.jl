@@ -56,7 +56,7 @@ function take!(c::Channel)
     v
 end
 
-isready(c::Channel) = n_avail(c) > 0
+isready(c::Channel) = navailable(c) > 0
 
 function wait(c::Channel)
     while !isready(c)
@@ -77,9 +77,12 @@ The maximal number of elements the channel can store.
 """
 capacity(c::Channel) = c.sz_max
 
-n_avail(c::Channel) = length(c.data)
+"""
+The number of elements currently in the channel.
+"""
+navailable(c::Channel) = length(c.data)
 
-show(io::IO, c::Channel) = print(io, "$(typeof(c))(capacity:$(capacity(c)), sz_curr:$(n_avail(c)))")
+show(io::IO, c::Channel) = print(io, "$(typeof(c))(capacity:$(capacity(c)), navailable:$(navailable(c)))")
 
 start{T}(c::Channel{T}) = Ref{Nullable{T}}()
 function done(c::Channel, state::Ref)
