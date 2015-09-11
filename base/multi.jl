@@ -522,15 +522,6 @@ function lookup_ref(pg, id, f)
     rv
 end
 
-function isready(rr::RemoteRef, args...)
-    rid = rr2id(rr)
-    if rr.where == myid()
-        isready(lookup_ref(rid).c, args...)
-    else
-        remotecall_fetch(rr.where, id->isready(lookup_ref(rid).c, args...), rid)
-    end
-end
-
 del_client(id, client) = del_client(PGRP, id, client)
 function del_client(pg, id, client)
     rv = lookup_ref(id)
@@ -790,6 +781,15 @@ function wait_ref(rid, callee, args...)
     nothing
 end
 wait(r::RemoteRef, args...) = (call_on_owner(wait_ref, r, myid(), args...); r)
+
+for f in (:isready, :navailable, :capacity)
+    f_ref = symbol(string(f, "_ref"))
+    @eval begin
+        ($f)(rv::RemoteValue, args...) = ($f)(rv.c, args...)
+        ($f_ref)(rid, args...) = ($f)(lookup_ref(rid).c, args...)
+        ($f)(rr::RemoteRef, args...) = call_on_owner(($f_ref), rr, args...)
+    end
+end
 
 fetch_ref(rid, args...) = fetch(lookup_ref(rid).c, args...)
 fetch(r::RemoteRef, args...) = call_on_owner(fetch_ref, r, args...)
